@@ -9,12 +9,12 @@ convert_date <- function(date, year) {
     
   }
   
-  if(date < 100 & sdate >= 10 ) {
+  if(date < 100 & date >= 10 ) {
     date1 <- paste0(information$year, "0", date)
     
   }
   
-  if(sdate >= 100 ) {
+  if(date >= 100 ) {
     date1 <- paste0(information$year, date)
     
   }
@@ -32,6 +32,7 @@ data_xfile$final <- 220
 data_xfile$system <- "irrigation"  ## Irrigation or dryland, if is irrigation then automatic irrigation
 data_xfile$year <- 77
 data_xfile$nitrogen_aplication <- data.frame(amount = 120, day = 0) 
+data_xfile$smodel <- "RIXCER"     ## Rice Fin Model
 
 
 
@@ -43,49 +44,60 @@ Xfile <- function(information){
   
    if( information$system == "irrigation" ){
       
-    pdate <- convert_date(pmax(midpoint_window, 0, information$year))        ## Planting date
-    sdate <- convert_date(pmax(midpoint_window - 15, 0))   ## Simulation Start
+    pdate <- convert_date(pmax(midpoint_window, 0), information$year)        ## Planting date
+    sdate <- convert_date(pmax(midpoint_window - 15, 0), )   ## Simulation Start
     A <- "PL"	    ## label name
     first <- -99  ## Start planting window
     last <- -99   ## End planting window
     IRR <- "A"    ## Automatic irrigation
-    plant<-"R"    ## On reported date
+    plant <- "R"    ## On reported date
         
    }
   
   
-  if( sistema == "Secano" ) {
+  if( information$system == "Secano" ) {
     
       
-    first <- midpoint_window - 20   ## First Window
-    last <- midpoint_window + 20    ## Last Window
-    sdate <- first -15  ## Simulation Start
+    first <- pmax(midpoint_window - 20, 0)  ## First Window
+    last <- pmax(midpoint_window + 20, 0)   ## Last Window
+    sdate <- convert_date(pmax(first -15, 0), information$year)    ## Simulation Start
     pdate <- -99      ## Planting date (you will take the planting window data mirca 2000)
     A <- "PL"         ## Label Name
     IRR <- "N"        ## No irrigation (dryland)
     plant<-"A"        ## Automatic planting seed given window
     
-    sdate
+    
    
   }
   
   
+  ## Defining the Experiment
   in_data <- list()
-  ## Definicion del Experimento
+ 
   
-  ## Datos Generales del Experimento
-  in_data$general <- list(PEOPLE="Diego Obando Jeison Mesa",ADDRESS="CIAT",SITE="CALI")
+  ## General data of the Experiment
   
-  in_data$treatments <- data.frame(N=1,R=1,O=1,C=0,TNAME="BID001",CU=1,FL=1,SA=0,IC=0,MP=1,
-                                   MI=0,MF=1,MR=0,MC=0,MT=0,ME=0,MH=0,SM=1)
+  in_data$general <- list(PEOPLE = "Diego Obando Jeison Mesa Patricia Moreno", ADDRESS = "CIAT", SITE = "CALI")
   
-  in_data$cultivars <- data.frame(C=1,CR="Ri",INGENO="IB0118",CNAME="IRNA")
   
-  in_data$fields <- data.frame(L=1,ID_FIELD="BID1",WSTA="JBID",FLSA=-99,FLOB=-99,FLDT="DR000",
-                               FLDD=-99,FLDS=-99,FLST=-99,SLTX=-99,SLDP=-99,ID_SOIL="BID0000001",
-                               FLNAME="FIELD01",XCRD=-99,YCRD=-99,ELEV=-99,AREA=-99,SLEN=-99,
-                               FLWR=-99,SLAS=-99,FLHST=-99,FHDUR=-99)
+  ## Definition simulate treatment
+  in_data$treatments <- data.frame(N = 1, R=1, O=1, C = 0, TNAME = "BID001", CU = 1, FL = 1, SA = 0, IC = 0, MP = 1,
+                                   MI = 0, MF = 1, MR = 0, MC = 0, MT = 0, ME = 0, MH = 0, SM = 1)
   
+  ## Definition simulate cultivar
+  
+  in_data$cultivars <- data.frame(C = 1, CR = "Ri", INGENO = "IB0118", CNAME = "IRNA")
+  
+  ## Field
+  
+  in_data$fields <- data.frame(L = 1, ID_FIELD = "BID1", WSTA = "JBID", FLSA=-99, FLOB = -99, FLDT = "DR000",
+                               FLDD = -99, FLDS = -99, FLST = -99, SLTX = -99, SLDP = -99, ID_SOIL="BID0000001",
+                               FLNAME = "FIELD01", XCRD = -99, YCRD = -99, ELEV = -99, AREA = -99, SLEN=-99,
+                               FLWR = -99, SLAS = -99, FLHST = -99, FHDUR=-99)
+  
+  ## initial conditions of the experiment
+  ## Aqui investigar acerca de ICDAT
+  ## Segun el manual Initial Conditions Measurement date, year + days
   in_data$ini_cond_properties <- data.frame(C=1,PCR="RI",ICDAT="50001",ICRT=-99,ICND=-99,ICRN=-99,ICRE=-99,
                                             ICWD=-99,ICRES=-99,ICREN=-99,ICREP=-99,ICRIP=-99,ICRID=-99,
                                             ICNAME="inicond1")
@@ -94,40 +106,54 @@ Xfile <- function(information){
   #                                       SNO3=rep(-99,5))
   
   
-  in_data$planting <- data.frame(P=1,PDATE=planting,EDATE=-99,PPOP=200,PPOE=175,PLME="S",PLDS="B",PLRS=-99,PLRD=0,PLDP=2.5,
-                                 PLWT=-99,PAGE=-99,PENV=-99,PLPH=-99,SPRL=-99)
+  ## Planting Details
+  in_data$planting <- data.frame( P = 1, PDATE = pdate, EDATE = -99, PPOP = 200, PPOE = 175, PLME = "S", 
+                                 PLDS = "B", PLRS = -99, PLRD = 0, PLDP = 2.5,
+                                 PLWT = -99, PAGE = -99, PENV = -99, PLPH = -99, SPRL = -99)
+  
+  ## Simulation Control 
+  in_data$sim_ctrl <- data.frame(N = 1, GENERAL = "GE", NYERS = 28, NREPS = 1, START = "S", SDATE = sdate, 
+                                 RSEED=2150, SNAME = "simctr1", SMODEL = paste(information$smodel), 
+                                 OPTIONS = "OP", WATER = "Y", NITRO = "Y", SYMBI = "N",
+                                 PHOSP = "N", POTAS = "N", DISES = "N", CHEM = "N", TILL = "N", 
+                                 CO2 = "M", METHODS = "ME", WTHER = "M", INCON = "M", LIGHT = "E", 
+                                 EVAPO = "R", INFIL = "S", PHOTO = "C", HYDRO = "R",
+                                 NSWIT = 1, MESOM = "G", MESEV = "S", MESOL =2, MANAGEMENT = "MA", 
+                                 PLANT = plant, IRRIG = IRR,
+                                 FERTI = "D", RESID = "R", HARVS = "M", OUTPUTS = "OU", FNAME = "N", 
+                                 OVVEW = "Y", SUMRY = "Y", FROPT = 1, GROUT = "Y", CAOUT = "Y", 
+                                 WAOUT = "Y", NIOUT = "N", MIOUT = "N",
+                                 DIOUT = "N", VBOSE = "N", CHOUT = "N", OPOUT = "N")
+  
+  ## AUTOMATIC MANAGEMENT 
+  
+  in_data$auto_mgmt <- data.frame(N = 1, PLANTING = A, PFRST = first, PLAST = last, PH2OL = 50, PH2OU= 100,
+                                  PH2OD = 30, PSTMX = 40, PSTMN = 10, IRRIGATION = "IR", IMDEP=30, ITHRL = 50, 
+                                  ITHRU =100, IROFF = "GS000", IMETH = "IR001", IRAMT = 10, IREFF = 1,
+                                  NITROGEN = "NI", NMDEP = 30, NMTHR = 50, NAMNT = 25, NCODE = "FE001",
+                                  NAOFF = "GS000", RESIDUES = "RE", RIPCN = 100, RTIME = 1, RIDEP = 20, 
+                                  HARVEST = "HA", HFRST = 0, HLAST = 00001, HPCNP = 100, HPCNR = 0)
   
   
-  in_data$sim_ctrl <- data.frame(N=1,GENERAL="GE",NYERS=28,NREPS=1,START="S",SDATE=sdate1,RSEED=2150,
-                                 SNAME="simctr1",SMODEL="MZIXM",OPTIONS="OP",WATER="Y",NITRO="Y",SYMBI="N",
-                                 PHOSP="N",POTAS="N",DISES="N",CHEM="N",TILL="N",CO2="M",METHODS="ME",
-                                 WTHER="M",INCON="M",LIGHT="E",EVAPO="R",INFIL="S",PHOTO="C",HYDRO="R",
-                                 NSWIT=1,MESOM="G",MESEV="S",MESOL=2,MANAGEMENT="MA",PLANT=plant,IRRIG=IRR,
-                                 FERTI="D",RESID="R",HARVS="M",OUTPUTS="OU",FNAME="N",OVVEW="Y",
-                                 SUMRY="Y",FROPT=1,GROUT="Y",CAOUT="Y",WAOUT="N",NIOUT="N",MIOUT="N",
-                                 DIOUT="N",VBOSE="N",CHOUT="N",OPOUT="N")
-  
-  in_data$auto_mgmt <- data.frame(N=1,PLANTING=A,PFRST=inicial,PLAST=final,PH2OL=50,PH2OU=100,PH2OD=30,
-                                  PSTMX=40,PSTMN=10,IRRIGATION="IR",IMDEP=30,ITHRL=50,ITHRU=100,
-                                  IROFF="GS000",IMETH="IR001",IRAMT=10,IREFF=1,NITROGEN="NI",NMDEP=30,
-                                  NMTHR=50,NAMNT=25,NCODE="FE001",NAOFF="GS000",RESIDUES="RE",RIPCN=100,
-                                  RTIME=1,RIDEP=20,HARVEST="HA",HFRST=0,HLAST=00001,HPCNP=100,HPCNR=0)
   
   
+  # Make Xfile
   
+  ## test
+  ## out_file <- "./JBID.RIX"
+  # overwrite <- F
   
-  #Funcion para escribir archivos experimentales
-  make_xfile <- function(in_data, out_file, overwrite=F) {
+  make_xfile <- function(in_data, out_file, overwrite = F) {
     #open file in write mode
     if (file.exists(out_file)) {
       if (overwrite) {
-        pf <- file(out_file,open="w")
+        pf <- file(out_file, open = "w")
       } else {
-        rnum <- round(runif(1,10000,20000),0)
-        tmpvar <- unlist(strsplit(out_file,"/",fixed=T))
-        pth_ref <- paste(tmpvar[1:(length(tmpvar)-1)],collapse="/")
-        out_file <- paste(pth_ref,"/copy-",rnum,"_",tmpvar[length(tmpvar)],sep="")
-        pf <- file(out_file,open="w")
+        rnum <- round(runif(1, 10000, 20000), 0)
+        tmpvar <- unlist(strsplit(out_file, "/", fixed = T))
+        pth_ref <- paste(tmpvar[1:(length(tmpvar) - 1)], collapse = "/")
+        out_file <- paste(pth_ref, "/copy-", rnum, "_", tmpvar[length(tmpvar)], sep = "")
+        pf <- file(out_file, open = "w")
       }
     } else {
       pf <- file(out_file,open="w")
@@ -135,20 +161,20 @@ Xfile <- function(information){
     
     #write header and stuff
     #pf <- file(out_file,open="w")
-    cat("*EXP.DETAILS: BID17101MZ MAIZE LAC\n",file=pf)
-    cat("\n",file=pf)
+    cat("*EXP.DETAILS: BID17101MZ MAIZE LAC\n", file = pf)
+    cat("\n",file = pf)
     
     #general stuff
-    cat("*GENERAL\n@PEOPLE\n",file=pf)
-    cat(paste(sprintf("%-12s",as.character(in_data$general$PEOPLE)),"\n",sep=""),file=pf)
-    cat("@ADDRESS\n",file=pf)
-    cat(paste(sprintf("%-12s",as.character(in_data$general$ADDRESS)),"\n",sep=""),file=pf)
-    cat("@SITE\n",file=pf)
-    cat(paste(sprintf("%-12s",as.character(in_data$general$SITE)),"\n",sep=""),file=pf)
+    cat("*GENERAL\n@PEOPLE\n", file = pf)
+    cat(paste(sprintf("%-12s", as.character(in_data$general$PEOPLE)), "\n", sep = ""), file = pf)
+    cat("@ADDRESS\n", file = pf)
+    cat(paste(sprintf("%-12s", as.character(in_data$general$ADDRESS)), "\n", sep = ""), file = pf)
+    cat("@SITE\n", file = pf)
+    cat(paste(sprintf("%-12s", as.character(in_data$general$SITE)), "\n", sep = ""), file = pf)
     
     #treatments
-    cat("*TREATMENTS                        -------------FACTOR LEVELS------------\n",file=pf)
-    cat("@N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM\n",file=pf)
+    cat("*TREATMENTS                        -------------FACTOR LEVELS------------\n", file = pf)
+    cat("@N R O C TNAME.................... CU FL SA IC MP MI MF MR MC MT ME MH SM\n", file = pf)
     for (i in 1:nrow(in_data$treatments)) {
       cat(paste(sprintf("%1$2d%2$2d%3$2d%4$2d",as.integer(in_data$treatments$N[i]),as.integer(in_data$treatments$R[i]),
                         as.integer(in_data$treatments$O[i]),as.integer(in_data$treatments$C[i])),
@@ -158,23 +184,23 @@ Xfile <- function(information){
                             as.integer(in_data$treatments$MF[i]),as.integer(in_data$treatments$MR[i]),as.integer(in_data$treatments$MC[i]),
                             as.integer(in_data$treatments$MT[i]),as.integer(in_data$treatments$ME[i]),as.integer(in_data$treatments$MH[i]),
                             as.integer(in_data$treatments$SM[i])),
-                "\n",sep=""),file=pf)
+                "\n", sep = ""), file = pf)
     }
-    cat("\n",file=pf)
+    cat("\n", file = pf)
     
     #cultivars
-    cat("*CULTIVARS\n",file=pf)
-    cat("@C CR INGENO CNAME\n",file=pf)
+    cat("*CULTIVARS\n", file = pf)
+    cat("@C CR INGENO CNAME\n", file = pf)
     for (i in 1:nrow(in_data$cultivars)) {
       cat(paste(sprintf("%2d",as.integer(in_data$cultivars$C[i]))," ",sprintf("%2s", in_data$cultivars$CR[i]),
                 " ", sprintf("%6s",in_data$cultivars$INGENO[i])," ",sprintf("%-12s",in_data$cultivars$CNAME[i]),
-                "\n",sep=""),file=pf)
+                "\n", sep = ""), file = pf)
     }
-    cat("\n",file=pf)
+    cat("\n", file = pf)
     
     #fields
-    cat("*FIELDS\n",file=pf)
-    cat("@L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL    FLNAME\n",file=pf)
+    cat("*FIELDS\n", file = pf)
+    cat("@L ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX  SLDP  ID_SOIL    FLNAME\n", file = pf)
     cat(paste(sprintf("%2d",as.integer(in_data$fields$L))," ",sprintf("%-8s",in_data$fields$ID_FIELD),
               " ",sprintf("%-8s",in_data$fields$WSTA),sprintf("%6d",as.integer(in_data$fields$FLSA)),
               sprintf("%6d",as.integer(in_data$fields$FLOB)),sprintf("%6s",in_data$fields$FLDT),
@@ -211,7 +237,7 @@ Xfile <- function(information){
     #cat("\n",file=pf)
     
     #planting details
-    cat("*PLANTING DETAILS\n",file=pf)
+    cat("*PLANTING DETAILS\n",file = pf)
     cat("@P PDATE EDATE  PPOP  PPOE  PLME  PLDS  PLRS  PLRD  PLDP  PLWT  PAGE  PENV  PLPH  SPRL                        PLNAME\n",file=pf)
     cat(paste(sprintf("%2d",as.integer(in_data$planting$P))," ",sprintf("%5s",in_data$planting$PDATE),
               " ",sprintf("%5s",in_data$planting$EDATE)," ",sprintf("%5d",as.integer(in_data$planting$PPOP)),
@@ -221,21 +247,23 @@ Xfile <- function(information){
               " ",sprintf("%5d",as.integer(in_data$planting$PLWT))," ",sprintf("%5d",as.integer(in_data$planting$PAGE)),
               " ",sprintf("%5d",as.integer(in_data$planting$PENV))," ",sprintf("%5d",as.integer(in_data$planting$PLPH)),
               " ",sprintf("%5d",as.integer(in_data$planting$SPRL))," ",sprintf("%29s",in_data$planting$PLNAME),
-              "\n",sep=""),file=pf)
-    cat("\n",file=pf)
+              "\n", sep = ""), file = pf)
+    cat("\n", file = pf)
     
-    ## Detalles de Fertilizacion
-    cat("*FERTILIZERS (INORGANIC)\n",file=pf)
-    cat("@F FDATE  FMCD  FACD  FDEP  FAMN  FAMP  FAMK  FAMC  FAMO  FOCD FERNAME                       \n",file=pf )
-    for(i in 1:3){
-      if(!is.na(aplicacion)[i]){
-        cat(sprintf("%2s %5s %4s %5s %5i %5.1f %5i %5i %5i %5i %5i %1i",1,1,"FE005","AP002",DiasNitrogeno[i],aplicacion[i],0,-99,-99,-99,-99,-99),"\n",file=pf)
-      }
+    ## Details Fertilization
+    cat("*FERTILIZERS (INORGANIC)\n", file = pf)
+    cat("@F FDATE  FMCD  FACD  FDEP  FAMN  FAMP  FAMK  FAMC  FAMO  FOCD FERNAME                       \n", file = pf)
+    for(i in dim(data_xfile$nitrogen_aplication)[1]){
+      
+      cat(sprintf("%2s %5s %4s %5s %5i %5.1f %5i %5i %5i %5i %5i %1i",1,1,"FE005","AP002", data_xfile$nitrogen_aplication[, "amount"], 
+                  data_xfile$nitrogen_aplication[, "day"], 0, -99, -99, -99, -99, -99), "\n", file = pf)
+      
     }
-    cat("\n",file=pf)
+    cat("\n", file = pf)
+    
     #simulation controls
-    cat("*SIMULATION CONTROLS\n",file=pf)
-    cat("@N GENERAL     NYERS NREPS START SDATE RSEED SNAME.................... SMODEL\n",file=pf)
+    cat("*SIMULATION CONTROLS\n", file = pf)
+    cat("@N GENERAL     NYERS NREPS START SDATE RSEED SNAME.................... SMODEL\n", file = pf)
     cat(paste(sprintf("%2d",as.integer(in_data$sim_ctrl$N))," ",sprintf("%-11s",in_data$sim_ctrl$GENERAL),
               " ",sprintf("%5d",as.integer(in_data$sim_ctrl$NYERS))," ",sprintf("%5d",as.integer(in_data$sim_ctrl$NREPS)),
               " ",sprintf("%5s",in_data$sim_ctrl$START)," ",sprintf("%5s",in_data$sim_ctrl$SDATE),
@@ -270,11 +298,11 @@ Xfile <- function(information){
               " ",sprintf("%5s",in_data$sim_ctrl$MIOUT)," ",sprintf("%5s",in_data$sim_ctrl$DIOUT),
               " ",sprintf("%5s",in_data$sim_ctrl$VBOSE)," ",sprintf("%5s",in_data$sim_ctrl$CHOUT),
               " ",sprintf("%5s",in_data$sim_ctrl$OPOUT),"\n",sep=""),file=pf)
-    cat("\n",file=pf)
+    cat("\n", file = pf)
     
     #automatic management
-    cat("@  AUTOMATIC MANAGEMENT\n",file=pf)
-    cat("@N PLANTING    PFRST PLAST PH2OL PH2OU PH2OD PSTMX PSTMN\n",file=pf)
+    cat("@  AUTOMATIC MANAGEMENT\n", file = pf)
+    cat("@N PLANTING    PFRST PLAST PH2OL PH2OU PH2OD PSTMX PSTMN\n", file = pf)
     cat(paste(sprintf("%2d",as.integer(in_data$auto_mgmt$N))," ",sprintf("%-11s",in_data$auto_mgmt$PLANTING),
               " ",sprintf("%5s",in_data$auto_mgmt$PFRST)," ",sprintf("%5s",in_data$auto_mgmt$PLAST),
               " ",sprintf("%5d",as.integer(in_data$auto_mgmt$PH2OL))," ",sprintf("%5d",as.integer(in_data$auto_mgmt$PH2OU)),
@@ -307,8 +335,10 @@ Xfile <- function(information){
     #output
     return(out_file)
   }
-  make_xfile(in_data, out_file=nombre,overwrite=T)
-}
+  
+  ## test
+  ## make_xfile(in_data, out_file= "./JBID.RIX", overwrite=T) Example Xfile Rice
+
 
 
 
