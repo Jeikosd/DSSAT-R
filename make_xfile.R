@@ -2,45 +2,47 @@
 ############################### Make Xfile ###################################
 ##############################################################################
 
-source("/home/jeisonmesa/Proyectos/BID/DSSAT-R/main_functions.R")
-
-# to test
-# carpeta donde se encuentra la informacion necesaria para correr
-path <- "/home/jeisonmesa/Proyectos/BID/bid-cc-agricultural-sector/08-Cells_toRun/matrices_cultivo/"
-
-# Cargar data frame entradas para DSSAT
-
-load(paste0(path, "Rice_riego.Rdat"))
-load(paste0(path, "Rice_secano.Rdat"))
-
-# Separacion Aplicacion de Nitrogeno
-# Cambiar crop_riego o crop_secano
-
-day0 <- crop_riego$N.app.0d
-day_aplication0 <- rep(0, length(day0))
-
-day30 <- crop_riego$N.app.30d
-day_aplication30 <- rep(30, length(day30))
-
-amount <- data.frame(day0, day30)
-day_app <- data.frame(day_aplication0, day_aplication30)
-
-  
-# Multiple Experiments
-years <- 68:94 ## Coincide con los años bisiestos a futuro
-## año <- c(68:94)
-data_xfile <- list()
-data_xfile$exp_details <- "*EXP.DETAILS: BID17101RZ RICE LAC"
-data_xfile$name <- "./JBID.RIX" 
-data_xfile$CR <- "RI"
-data_xfile$INGENO <- "IB0118"
-data_xfile$CNAME <- "IRNA"
-data_xfile$initation <- crop_riego$mirca.start
-data_xfile$final <- crop_riego$mirca.end
-data_xfile$system <- "irrigation"  ## Irrigation or rainfed, if is irrigation then automatic irrigation
-data_xfile$year <- years[1]
-data_xfile$nitrogen_aplication <- list(amount = amount, day_app = day_app)
-data_xfile$smodel <- "RIXCER"     ##  Fin Model
+# source("/home/jeisonmesa/Proyectos/BID/DSSAT-R/main_functions.R")
+# 
+# # to test
+# # carpeta donde se encuentra la informacion necesaria para correr
+# path <- "/home/jeisonmesa/Proyectos/BID/bid-cc-agricultural-sector/08-Cells_toRun/matrices_cultivo/"
+# 
+# # Cargar data frame entradas para DSSAT
+# 
+# load(paste0(path, "Rice_riego.Rdat"))
+# load(paste0(path, "Rice_secano.Rdat"))
+# 
+# # Separacion Aplicacion de Nitrogeno
+# # Cambiar crop_riego o crop_secano
+# 
+# day0 <- crop_riego$N.app.0d
+# day_aplication0 <- rep(0, length(day0))
+# 
+# day30 <- crop_riego$N.app.30d
+# day_aplication30 <- rep(30, length(day30))
+# 
+# amount <- data.frame(day0, day30)
+# day_app <- data.frame(day_aplication0, day_aplication30)
+# 
+#   
+# # Multiple Experiments
+# years <- 68:94 ## Coincide con los años bisiestos a futuro
+# ## año <- c(68:94)
+# data_xfile <- list()
+# data_xfile$crop <- "RICE" 
+# data_xfile$exp_details <- "*EXP.DETAILS: BID17101RZ RICE LAC"
+# data_xfile$name <- "./JBID.RIX" 
+# data_xfile$CR <- "RI"
+# data_xfile$INGENO <- "IB0118"
+# data_xfile$CNAME <- "IRNA"
+# data_xfile$initation <- crop_riego$mirca.start
+# data_xfile$final <- crop_riego$mirca.end
+# data_xfile$system <- "irrigation"  ## Irrigation or rainfed, if is irrigation then automatic irrigation
+# data_xfile$year <- years[1]
+# data_xfile$nitrogen_aplication <- list(amount = amount, day_app = day_app)
+# data_xfile$smodel <- "RIXCER"     ##  Fin Model
+# data_xfile$bname <- "DSSBatch.v45"
 
 # 
 
