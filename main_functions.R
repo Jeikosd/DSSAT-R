@@ -1,4 +1,54 @@
 ##############################################################################
+########################## Condiciones iniciales #############################
+##############################################################################
+
+initial_conditions <- function(data, system) {
+  
+  if(system == "rainfed"){
+    
+    ## Extraer Condiciones iniciales de los archivos de suelos
+    SOIL <- readLines(paste(data))  ## Archivo de Suelo
+    profiles <- grep("SLB", SOIL)  ## Posicion en la que coincide con las variables a extraer
+    imp.head <- scan(paste(data), what = "character", skip = profiles[1] - 1, nlines = 1, quiet = T)  # Encabezado (titulo para las columnas)
+    seps <- c(6, -6, 6)    ## Separadores para las variables
+    Initial_conditions <- read.fwf("SOIL.SOL", width = seps, header = F, skip = profiles[1], n = profiles[2] - profiles[1] - 1)
+    
+    pat <- "SLB|SDUL"
+    headers <- imp.head[grep(pat, imp.head, perl = TRUE)]
+    
+    colnames(Initial_conditions) <- headers
+    
+    return(Initial_conditions)
+    
+  }
+  
+  if(system == "irrigation"){
+    
+    ## Extraer Condiciones iniciales de los archivos de suelos
+    SOIL <- readLines(paste(data))  ## Archivo de Suelo
+    profiles <- grep("SLB", SOIL)  ## Posicion en la que coincide con las variables a extraer
+    imp.head <- scan(paste(data), what = "character", skip = profiles[1] - 1, nlines = 1, quiet = T)  # Encabezado (titulo para las columnas)
+    seps <- c(6, -6, 6)    ## Separadores para las variables
+    Initial_conditions <- read.fwf("SOIL.SOL", width = seps, header = F, skip = profiles[1], n = profiles[2] - profiles[1] - 1)
+    
+    pat <- "SLB|SDUL"
+    headers <- imp.head[grep(pat, imp.head, perl = TRUE)]
+    
+    Initial_conditions <- data.frame(Initial_conditions[, 1], rep(-99, dim(Initial_conditions)[1]))
+    
+    colnames(Initial_conditions) <- headers
+    
+    return(Initial_conditions)
+  }
+
+  
+}
+
+
+
+
+
+##############################################################################
 ########################## Convert day for DSSAT #############################
 ##############################################################################
 

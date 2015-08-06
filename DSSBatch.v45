@@ -1,0 +1,4 @@
+$BATCH(RICE)
+!
+@FILEX                                                                                        TRTNO     RP     SQ     OP     CO
+./JBID.RIX                                                                                        1      1      0      1      0
