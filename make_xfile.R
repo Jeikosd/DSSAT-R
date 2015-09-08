@@ -84,6 +84,7 @@
 Xfile <- function(information, pixel, in_conditions, initial) {
   
 
+
   PPOP <- information$PPOP
   PPOE <- information$PPOE
   PLME <- paste(information$PLME)
@@ -157,16 +158,16 @@ Xfile <- function(information, pixel, in_conditions, initial) {
         SNO3 <- c(3, 3, 2, 1, 0.1, 0.1, 0.1, 0.1, 0.1)
     
     IC <- 1
-    first <- information$initation - 15  ## First Window
-    last <- information$initation + 60  ## Last Window
-    sdate <- convert_date(first - 60, information$year)    ## Simulation Start
+    first <- information$initation  ## First Window
+    #last <- information$initation + 60  ## Last Window
+    sdate <- convert_date(first - 15, information$year)    ## Simulation Start
     pdate <- -99      ## Planting date (you will take the planting window data mirca 2000)
     A <- "PL"         ## Label Name
     IRR <- "N"        ## No irrigation (rainfed)
     plant <-"A"        ## Automatic planting seed given window
     ### Reconvertir first para que corra con dia de simulacion un año antes
-    first <- convert_date(information$initation - 14, information$year)
-    last <- convert_date(information$initation + 35, information$year)
+    #first <- convert_date(information$initation , information$year)
+    last <- convert_date(information$initation + 60, information$year)
     
   }
   

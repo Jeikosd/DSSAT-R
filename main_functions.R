@@ -15,7 +15,8 @@ initial_conditions <- function(data, system) {
     
     pat <- "SLB|SDUL"
     headers <- imp.head[grep(pat, imp.head, perl = TRUE)]
-    
+	## Borrar easta linea cuando no se corra Papa Secano
+    #Initial_conditions <- data.frame(Initial_conditions[, 1], rep(-99, dim(Initial_conditions)[1]))
     colnames(Initial_conditions) <- headers
     
     return(Initial_conditions)
@@ -188,5 +189,19 @@ read.overview <- function(...){
   return(year.overview)
   
 }
+
+###
+
+
+
+
+
+
+
+
+
+
+
+
 
 
