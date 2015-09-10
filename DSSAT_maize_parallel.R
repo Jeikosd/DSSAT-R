@@ -45,7 +45,7 @@
   data_xfile$system <- "irrigation"  ## Irrigation or rainfed, if is irrigation then automatic irrigation
   data_xfile$year <- years[1]
   data_xfile$nitrogen_aplication <- list(amount = amount, day_app = day_app)
-  data_xfile$smodel <- "CRGRO045"     ##  Fin Model
+  data_xfile$smodel <- "MZCER045"     ##  Fin Model
   data_xfile$bname <- "DSSBatch.v45"
   data_xfile$PPOP <- 7   ## Investigar mas acerca de este parametro 
   data_xfile$PPOE <- 5   ## Investigar mas acerca de este parametro 

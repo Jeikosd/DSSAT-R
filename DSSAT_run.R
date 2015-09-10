@@ -125,11 +125,26 @@ run_dssat <- function(input, pixel, dir_dssat, dir_base) {
   
   CSMbatch(input$xfile$crop, input$xfile$name, input$xfile$bname) 
   
-  ## Make Xfile 
-  Xfile(input$xfile, pixel)
-  
   ## Make Soil
   Extraer.SoilDSSAT(values[input$climate$id[pixel]],getwd())
+  
+  
+  
+  ## Make Xfile 
+  if(input$xfile$system == "rainfed") {
+    in_conditions <- initial_conditions("SOIL.SOL", input$xfile$system)
+    Xfile(input$xfile, pixel, in_conditions, initial = T)
+    
+  } else {
+    in_conditions <- initial_conditions("SOIL.SOL", input$xfile$system)
+    Xfile(input$xfile, pixel, in_conditions, initial = T)
+  }
+  
+  
+#   if(input$xfile$system == "irrigated") {
+#     Xfile(input$xfile, pixel, in_conditions = F)
+#     
+#   }
   
 
   ## Make WTH
@@ -160,13 +175,15 @@ run_dssat <- function(input, pixel, dir_dssat, dir_base) {
   
   system(paste0("./DSCSM045.EXE " , input$xfile$smodel," B DSSBatch.v45"), ignore.stdout = T)
   
-  pat <- "SDAT|PDAT|ADAT|MDAT|IRCM|HWAH|HIAM|EPCM|NICM|NDCH|PRCP|ETCP|CWAM"
-  imp.head <- scan("Summary.OUT", what = "character", skip = 3, nlines = 1, quiet = T)
-  headers <- imp.head[grep(pat, imp.head, perl = TRUE)]
-  seps <- c(-92, 8, 8, -8, 8, 8, -14, 8, -8, 8, -36, 6, -12, 6, -12, 6, -30, 6, -242, 6, -31, 7, 7)
-  text_summary <- readLines('Summary.OUT', skipNul = T)
-  imp.dat <- read.fwf(textConnection(text_summary), width = seps, skip = 4)
-  colnames(imp.dat) <- headers
+pat <- "SDAT|PDAT|ADAT|MDAT|IRCM|HWAH|HIAM|EPCM|NICM|NDCH|PRCP|ETCP|CWAM|YPTM|YPEM|YPNAM|YPNUM"
+imp.head <- scan("Summary.OUT", what = "character", skip = 3, nlines = 1, quiet = T)
+headers <- imp.head[grep(pat, imp.head, perl = TRUE)]
+
+seps <- c(-92, 8, 8, -8, 8, 8, -14, 8, -8, 8, -36, 6, -12, 6, -12, 6, -30, 6, -179, 9, 9, -27, 9, 9, 6, -31, 7, 7)
+text_summary <- readLines('Summary.OUT', skipNul = T)
+imp.dat <- read.fwf(textConnection(text_summary), width = seps, skip = 4)
+colnames(imp.dat) <- headers
+
   return(imp.dat) 
   ## gc() Tener cuidado de quitar
   
